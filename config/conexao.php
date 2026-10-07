@@ -11,7 +11,7 @@
 define('DB_HOST',    'localhost');
 define('DB_NOME',    'cms');
 define('DB_USUARIO', 'root');
-define('DB_SENHA',   'aluno');
+define('DB_SENHA',   '');
 
 // Fuso horário usado pelo PHP nas funções de data (date, strtotime...)
 date_default_timezone_set('America/Bahia');
