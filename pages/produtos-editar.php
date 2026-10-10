@@ -6,7 +6,7 @@ require_once '../includes/produtos-funcoes.php';
 
 exigirAdmin();
 
-/* Verificar se foi informado um ID */
+/* Verifica se o ID informado é válido. */
 $id = (int) get('id');
 
 if ($id <= 0) {
@@ -14,7 +14,7 @@ if ($id <= 0) {
     redirecionar('produtos.php');
 }
 
-/* Buscar o produto */
+/* Busca o produto no banco de dados. */
 $sql = $pdo->prepare(
     'SELECT *
      FROM produtos
@@ -22,7 +22,6 @@ $sql = $pdo->prepare(
 );
 
 $sql->execute([$id]);
-
 $produto = $sql->fetch();
 
 if (!$produto) {
@@ -30,7 +29,7 @@ if (!$produto) {
     redirecionar('produtos.php');
 }
 
-/* Dados que aparecem no formulário */
+/* Preenche o formulário com os dados atuais. */
 $dados = [
     'nome' => $produto['nome'],
     'descricao' => $produto['descricao'],
@@ -41,7 +40,7 @@ $dados = [
 
 $erros = [];
 
-/* Buscar categorias */
+/* Busca as categorias ativas. */
 $sqlCategorias = $pdo->query(
     'SELECT id, nome
      FROM categorias
@@ -51,13 +50,12 @@ $sqlCategorias = $pdo->query(
 
 $categorias = $sqlCategorias->fetchAll();
 
-/* Atualizar produto */
+/* Processa o envio do formulário. */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     csrfValidar();
 
     $dados = lerFormularioProduto();
-
     $erros = validarProduto($pdo, $dados);
 
     if (!$erros) {
@@ -82,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         definirMensagem('Produto atualizado com sucesso!');
-
         redirecionar('produtos.php');
     }
 }
@@ -93,195 +90,177 @@ $menuAtivo = 'produtos';
 require_once '../includes/header.php';
 ?>
 
-<div class="container-fluid">
+<main class="content">
 
-    <div class="mb-4">
+    <div class="page-header">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="dashboard.php">Dashboard</a></li>
+                <li><a href="produtos.php">Produtos</a></li>
+                <li>Editar produto</li>
+            </ol>
 
-        <h1 class="h3 mb-1">
-            Editar produto
-        </h1>
+            <h1>Editar produto</h1>
+            <p>Altere as informações do produto da Doce Tiffany.</p>
+        </div>
 
-        <p class="text-muted mb-0">
-            Altere os dados do produto da Doce Tiffany.
-        </p>
-
+        <div class="page-header__actions">
+            <a href="produtos.php" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Voltar
+            </a>
+        </div>
     </div>
 
     <?php exibirMensagem(); ?>
 
     <?php if ($erros): ?>
-
         <div class="alert alert-danger">
-
             <strong>Verifique os campos abaixo:</strong>
-
-            <ul class="mb-0 mt-2">
-
+            <ul>
                 <?php foreach ($erros as $erro): ?>
-
                     <li><?= e($erro) ?></li>
-
                 <?php endforeach; ?>
-
             </ul>
-
         </div>
-
     <?php endif; ?>
 
+    <form method="post" class="produto-form">
 
-    <div class="card shadow-sm">
+        <?= csrfCampo() ?>
 
-        <div class="card-body">
+        <section class="card produto-form__card">
 
-            <form method="POST">
+            <div class="produto-form__header">
+                <div>
+                    <h2>Dados do produto</h2>
+                    <p>Informações principais do item cadastrado.</p>
+                </div>
+            </div>
 
-                <?= csrfCampo() ?>
+            <div class="produto-form__body">
 
-                <div class="row">
+                <div class="produto-form__field">
+                    <label for="nome" class="form-label">
+                        Nome do produto <span>*</span>
+                    </label>
 
-                    <!-- NOME -->
-                    <div class="col-md-8 mb-3">
+                    <input
+                        type="text"
+                        id="nome"
+                        name="nome"
+                        class="form-control"
+                        value="<?= e($dados['nome']) ?>"
+                        maxlength="150"
+                        required
+                    >
+                </div>
 
-                        <label class="form-label">
-                            Nome do produto
-                        </label>
+                <div class="produto-form__field">
+                    <label for="preco" class="form-label">
+                        Preço (R$) <span>*</span>
+                    </label>
 
-                        <input
-                            type="text"
-                            name="nome"
-                            class="form-control"
-                            value="<?= e($dados['nome']) ?>"
-                            required
-                        >
+                    <input
+                        type="number"
+                        id="preco"
+                        name="preco"
+                        class="form-control"
+                        value="<?= e($dados['preco']) ?>"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
 
-                    </div>
+                    <small>Informe o preço em reais.</small>
+                </div>
 
+                <div class="produto-form__field">
+                    <label for="categoria_id" class="form-label">
+                        Categoria <span>*</span>
+                    </label>
 
-                    <!-- PREÇO -->
-                    <div class="col-md-4 mb-3">
+                    <select
+                        id="categoria_id"
+                        name="categoria_id"
+                        class="form-control"
+                        required
+                    >
+                        <option value="">Selecione uma categoria</option>
 
-                        <label class="form-label">
-                            Preço
-                        </label>
-
-                        <input
-                            type="number"
-                            name="preco"
-                            class="form-control"
-                            value="<?= e($dados['preco']) ?>"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- CATEGORIA -->
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Categoria
-                        </label>
-
-                        <select
-                            name="categoria_id"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Selecione uma categoria
+                        <?php foreach ($categorias as $categoria): ?>
+                            <option
+                                value="<?= (int) $categoria['id'] ?>"
+                                <?= (int) $dados['categoria_id'] === (int) $categoria['id'] ? 'selected' : '' ?>
+                            >
+                                <?= e($categoria['nome']) ?>
                             </option>
-
-                            <?php foreach ($categorias as $categoria): ?>
-
-                                <option
-                                    value="<?= $categoria['id'] ?>"
-                                    <?= (int) $dados['categoria_id'] === (int) $categoria['id'] ? 'selected' : '' ?>
-                                >
-                                    <?= e($categoria['nome']) ?>
-                                </option>
-
-                            <?php endforeach; ?>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- STATUS -->
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <div class="form-check mt-2">
-
-                            <input
-                                type="checkbox"
-                                name="status"
-                                class="form-check-input"
-                                id="status"
-                                <?= $dados['status'] ? 'checked' : '' ?>
-                            >
-
-                            <label
-                                class="form-check-label"
-                                for="status"
-                            >
-                                Produto ativo
-                            </label>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- DESCRIÇÃO -->
-                    <div class="col-12 mb-4">
-
-                        <label class="form-label">
-                            Descrição
-                        </label>
-
-                        <textarea
-                            name="descricao"
-                            class="form-control"
-                            rows="5"
-                        ><?= e($dados['descricao']) ?></textarea>
-
-                    </div>
-
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
+                <div class="produto-form__field">
+                    <label for="descricao" class="form-label">
+                        Descrição
+                    </label>
 
-                <div class="d-flex gap-2">
+                    <textarea
+                        id="descricao"
+                        name="descricao"
+                        class="form-control produto-form__description"
+                        rows="5"
+                    ><?= e($dados['descricao']) ?></textarea>
 
-                    <a
-                        href="produtos.php"
-                        class="btn btn-secondary"
-                    >
-                        Cancelar
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Salvar alterações
-                    </button>
-
+                    <small>Descreva as características do produto.</small>
                 </div>
 
-            </form>
+            </div>
+        </section>
 
+        <section class="card produto-form__card produto-form__status">
+
+            <div class="produto-form__header">
+                <div>
+                    <h2>Disponibilidade</h2>
+                    <p>Controle se o produto está ativo no sistema.</p>
+                </div>
+            </div>
+
+            <div class="produto-form__status-body">
+                <label class="produto-form__check" for="status">
+                    <input
+                        type="checkbox"
+                        name="status"
+                        id="status"
+                        value="1"
+                        <?= $dados['status'] ? 'checked' : '' ?>
+                    >
+
+                    <span>
+                        <strong>Produto ativo</strong>
+                        <small>
+                            O produto está habilitado no cadastro.
+                        </small>
+                    </span>
+                </label>
+            </div>
+
+        </section>
+
+        <div class="produto-form__actions">
+            <a href="produtos.php" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i>
+                Salvar alterações
+            </button>
         </div>
 
-    </div>
+    </form>
 
-</div>
+</main>
 
 <?php require_once '../includes/footer.php'; ?>
+```

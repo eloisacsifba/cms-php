@@ -1,3 +1,4 @@
+```php
 <?php
 /* ==========================================================================
    Menu lateral (incluído pelo header.php)
@@ -34,16 +35,19 @@ $totalUsuariosMenu = ehAdmin() ? (int) $pdo->query('SELECT COUNT(*) FROM usuario
         </ul>
         <?php endif; ?>
 
-        <!-- =============================================================
-             CONTEÚDO DO SITE: substitua os itens abaixo pelas entidades
-             do tema da sua dupla (ex.: Notícias, Produtos, Eventos...).
-             Cada item deve apontar para a listagem do CRUD correspondente
-             e usar linkMenu('nome-do-item', $menuAtivo) para o destaque.
-             ============================================================= -->
+        <!-- Conteúdo do site da Doce Tiffany -->
         <p class="sidebar__label">Conteúdo do site</p>
         <ul class="sidebar__menu">
-          <li><a href="#" <?= linkMenu('categorias', $menuAtivo) ?>><i class="bi bi-tags"></i> Categorias <span class="badge badge-gray">exemplo</span></a></li>
-          <li><a href="#" <?= linkMenu('publicacoes', $menuAtivo) ?>><i class="bi bi-file-earmark-richtext"></i> Publicações <span class="badge badge-gray">exemplo</span></a></li>
+          <li>
+            <a href="produtos.php" <?= linkMenu('produtos', $menuAtivo) ?>>
+              <i class="bi bi-bag"></i> Produtos
+            </a>
+          </li>
+          <li>
+            <a href="categorias.php" <?= linkMenu('categorias', $menuAtivo) ?>>
+            <i class="bi bi-tags"></i> Categorias
+          </a>
+        </li>
         </ul>
 
         <p class="sidebar__label">Sistema</p>
@@ -62,3 +66,4 @@ $totalUsuariosMenu = ehAdmin() ? (int) $pdo->query('SELECT COUNT(*) FROM usuario
       </div>
     </aside>
     <div class="sidebar-backdrop"></div>
+```
